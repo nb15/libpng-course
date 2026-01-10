@@ -21,6 +21,8 @@ extern "C" void course_preparse_trigger(const uint8_t* raw, size_t raw_size);
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   if (size < 8) return 0;
 
+  course_preparse_trigger(data, size);  // <-- ADD THIS LINE
+
   png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
   if (!png_ptr) return 0;
 
