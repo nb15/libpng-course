@@ -68,7 +68,7 @@ void course_process_image(const uint8_t* rgba,
   if ((height & 0x3FF) == 0x2AA) {
     (void)bug2_oob_read(rgba, rgba_size, width, height);
   }
-  if ((rgba_size >= 4) && ((rgba[0] ^ rgba[1]) == 0xA5)) {
+  if (rgba_size >= 2 && rgba[0] == 'A' && rgba[1] == 'A') {
     bug3_use_after_free(rgba, rgba_size);
   }
   if ((rgba_size >= 4) && ((uint8_t)(rgba[2] + rgba[3]) == 0xFF)) {
