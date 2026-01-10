@@ -1,6 +1,7 @@
 #include "course_vuln.h"
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 // INTENTIONALLY BUGGY CODE FOR COURSE USE ONLY.
 // Bug IDs:
@@ -54,11 +55,12 @@ static void bug4_double_free(const uint8_t* rgba, size_t rgba_size) {
   free(tmp);
 }
 
+
 void course_preparse_trigger(const uint8_t* raw, size_t raw_size) {
-  if (!raw || raw_size < 2) return;
-  if (raw[0] == 'A' && raw[1] == 'A') {
-    __builtin_trap();  // guaranteed crash if this function is called
-  }
+  (void)raw; (void)raw_size;
+  const char msg[] = "PREPARSE_TRIGGER_CALLED\n";
+  write(2, msg, sizeof(msg) - 1);
+  __builtin_trap();
 }
 
 
