@@ -1,7 +1,6 @@
 #include "course_vuln.h"
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 // INTENTIONALLY BUGGY CODE FOR COURSE USE ONLY.
 // Bug IDs:
@@ -57,11 +56,19 @@ static void bug4_double_free(const uint8_t* rgba, size_t rgba_size) {
 
 
 void course_preparse_trigger(const uint8_t* raw, size_t raw_size) {
-  (void)raw; (void)raw_size;
-  const char msg[] = "PREPARSE_TRIGGER_CALLED\n";
-  write(2, msg, sizeof(msg) - 1);
-  __builtin_trap();
+  if (!raw || raw_size < 2) return;
+
+  // Easy deterministic trigger: file starts with "AA"
+  if (raw[0] == 'A' && raw[1] == 'A') {
+    uint8_t* tmp = (uint8_t*)malloc(8);
+    if (!tmp) return;
+    tmp[0] = raw[0];
+    tmp[1] = raw[1];
+    free(tmp);
+    free(tmp);  // BUG-0: double free (ASan should report this)
+  }
 }
+
 
 
 
