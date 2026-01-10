@@ -60,12 +60,15 @@ void course_preparse_trigger(const uint8_t* raw, size_t raw_size) {
 
   // Easy deterministic trigger: file starts with "AA"
   if (raw[0] == 'A' && raw[1] == 'A') {
-    uint8_t* tmp = (uint8_t*)malloc(8);
+    uint8_t* tmp = (uint8_t*)malloc(16);
     if (!tmp) return;
     tmp[0] = raw[0];
     tmp[1] = raw[1];
     free(tmp);
-    free(tmp);  // BUG-0: double free (ASan should report this)
+
+    // BUG-0: heap-use-after-free (very reliably detected by ASan)
+    volatile uint8_t x = tmp[0];
+    (void)x;
   }
 }
 
