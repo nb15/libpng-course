@@ -16,6 +16,8 @@ static void safe_png_cleanup(png_structp png_ptr, png_infop info_ptr) {
   if (png_ptr) png_destroy_read_struct(&png_ptr, info_ptr ? &info_ptr : nullptr, nullptr);
 }
 
+extern "C" void course_preparse_trigger(const uint8_t* raw, size_t raw_size);
+
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   if (size < 8) return 0;
 

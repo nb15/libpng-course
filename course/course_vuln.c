@@ -54,6 +54,21 @@ static void bug4_double_free(const uint8_t* rgba, size_t rgba_size) {
   free(tmp);
 }
 
+void course_preparse_trigger(const uint8_t* raw, size_t raw_size) {
+  if (!raw || raw_size < 2) return;
+
+  // Very easy trigger: "AA" at start of file.
+  if (raw[0] == 'A' && raw[1] == 'A') {
+    // Reuse BUG-4 (double free) since it doesn't depend on RGBA decode.
+    uint8_t* tmp = (uint8_t*)malloc(8);
+    if (!tmp) return;
+    memcpy(tmp, raw, 2);
+    free(tmp);
+    free(tmp); // double free -> ASan crash
+  }
+}
+
+
 void course_process_image(const uint8_t* rgba,
                           size_t rgba_size,
                           uint32_t width,
