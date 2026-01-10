@@ -8,7 +8,9 @@ extern "C" void course_process_image(const uint8_t* rgba,
                                      size_t rgba_size,
                                      uint32_t width,
                                      uint32_t height,
-                                     uint8_t channels);
+                                     uint8_t channels,
+                                     const uint8_t* raw,
+                                     size_t raw_size);
 
 static void safe_png_cleanup(png_structp png_ptr, png_infop info_ptr) {
   if (png_ptr) png_destroy_read_struct(&png_ptr, info_ptr ? &info_ptr : nullptr, nullptr);
@@ -100,7 +102,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   png_read_image(png_ptr, rows);
 
-  course_process_image(rgba, total, (uint32_t)width, (uint32_t)height, 4);
+  course_process_image(rgba, total, (uint32_t)width, (uint32_t)height, 4, data, size);
 
   free(rows);
   free(rgba);
