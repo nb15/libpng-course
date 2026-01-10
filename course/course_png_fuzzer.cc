@@ -19,9 +19,11 @@ static void safe_png_cleanup(png_structp png_ptr, png_infop info_ptr) {
 extern "C" void course_preparse_trigger(const uint8_t* raw, size_t raw_size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  if (size < 8) return 0;
+  if (size < 2) return 0;               // allow tiny inputs for preparse trigger
 
-  course_preparse_trigger(data, size);  // <-- ADD THIS LINE
+  course_preparse_trigger(data, size);  // run trigger even if PNG parsing is skipped
+
+  if (size < 8) return 0;               // PNG header parsing needs at least 8 bytes
 
   png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
   if (!png_ptr) return 0;
