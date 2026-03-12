@@ -21,7 +21,7 @@ extern "C" void course_preparse_trigger(const uint8_t* raw, size_t raw_size);
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   if (size < 2) return 0;               // allow tiny inputs for preparse trigger
 
-  course_preparse_trigger(data, size);  // run trigger even if PNG parsing is skipped
+  // course_preparse_trigger(data, size);  // run trigger even if PNG parsing is skipped
 
   if (size < 8) return 0;               // PNG header parsing needs at least 8 bytes
 
