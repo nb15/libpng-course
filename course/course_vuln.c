@@ -75,6 +75,30 @@ void course_preparse_trigger(const uint8_t* raw, size_t raw_size) {
 
 
 
+// void course_process_image(const uint8_t* rgba,
+//                           size_t rgba_size,
+//                           uint32_t width,
+//                           uint32_t height,
+//                           uint8_t channels,
+//                           const uint8_t* raw,
+//                           size_t raw_size) {
+//   if (!rgba || rgba_size == 0 || !raw || raw_size == 0) return;
+
+//   // Deterministic gates so fuzzing can find these on laptops.
+//   if ((width & 0x3FF) == 0x155) {
+//     bug1_overflow_heap_write(rgba, rgba_size, width, height, channels);
+//   }
+//   if ((height & 0x3FF) == 0x2AA) {
+//     (void)bug2_oob_read(rgba, rgba_size, width, height);
+//   }
+//   if (raw_size >= 2 && raw[0] == 'A' && raw[1] == 'A') {
+//     bug3_use_after_free(rgba, rgba_size);
+//   }
+//   if ((rgba_size >= 4) && ((uint8_t)(rgba[2] + rgba[3]) == 0xFF)) {
+//     bug4_double_free(rgba, rgba_size);
+//   }
+// }
+
 void course_process_image(const uint8_t* rgba,
                           size_t rgba_size,
                           uint32_t width,
@@ -84,17 +108,20 @@ void course_process_image(const uint8_t* rgba,
                           size_t raw_size) {
   if (!rgba || rgba_size == 0 || !raw || raw_size == 0) return;
 
-  // Deterministic gates so fuzzing can find these on laptops.
-  if ((width & 0x3FF) == 0x155) {
+  // Easier gates for fuzzing from valid PNGs.
+  if (width == 32) {
     bug1_overflow_heap_write(rgba, rgba_size, width, height, channels);
   }
-  if ((height & 0x3FF) == 0x2AA) {
+
+  if (height == 32) {
     (void)bug2_oob_read(rgba, rgba_size, width, height);
   }
-  if (raw_size >= 2 && raw[0] == 'A' && raw[1] == 'A') {
+
+  if (rgba_size >= 16 && rgba[0] == 0x00 && rgba[1] == 0x00) {
     bug3_use_after_free(rgba, rgba_size);
   }
-  if ((rgba_size >= 4) && ((uint8_t)(rgba[2] + rgba[3]) == 0xFF)) {
+
+  if (rgba_size >= 8 && rgba[2] == 0xFF) {
     bug4_double_free(rgba, rgba_size);
   }
 }
