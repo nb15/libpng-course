@@ -106,22 +106,29 @@ void course_process_image(const uint8_t* rgba,
                           uint8_t channels,
                           const uint8_t* raw,
                           size_t raw_size) {
-  if (!rgba || rgba_size == 0 || !raw || raw_size == 0) return;
+  (void)raw;
+  (void)raw_size;
 
-  // Easier gates for fuzzing from valid PNGs.
-  if (width == 32) {
-    bug1_overflow_heap_write(rgba, rgba_size, width, height, channels);
-  }
+  if (!rgba || rgba_size == 0) return;
 
-  if (height == 32) {
-    (void)bug2_oob_read(rgba, rgba_size, width, height);
-  }
-
-  if (rgba_size >= 16 && rgba[0] == 0x00 && rgba[1] == 0x00) {
+  // BUG-3: guaranteed on any successfully decoded image of reasonable size.
+  // This makes the assignment reliable with the provided seed corpus.
+  if (rgba_size >= 16) {
     bug3_use_after_free(rgba, rgba_size);
   }
 
-  if (rgba_size >= 8 && rgba[2] == 0xFF) {
+  // BUG-4: also easy to reach on many valid decoded PNGs, but slightly less universal.
+  if (rgba_size >= 8 && (width == 32 || height == 32)) {
     bug4_double_free(rgba, rgba_size);
   }
+
+  // Optional stretch bugs: keep disabled for now unless you verify they are reachable
+  // and pedagogically useful.
+  // if (width == 32) {
+  //   bug1_overflow_heap_write(rgba, rgba_size, width, height, channels);
+  // }
+  //
+  // if (height == 32) {
+  //   (void)bug2_oob_read(rgba, rgba_size, width, height);
+  // }
 }
